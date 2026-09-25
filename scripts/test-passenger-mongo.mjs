@@ -72,19 +72,19 @@ try {
 
   async function nextId() {
     const result = await oracle.execute(
-      "SELECT smartmove_owner.web_feedback_seq.NEXTVAL FEEDBACK_ID FROM dual"
+      "SELECT smartmove_database.web_feedback_seq.NEXTVAL FEEDBACK_ID FROM dual"
     )
     return result.rows[0].FEEDBACK_ID
   }
   async function insertOracle(id) {
     await oracle.execute(
-      "BEGIN smartmove_owner.web_submit_feedback(:id, 3, 1, 'COMPLAINT'); END;",
+      "BEGIN smartmove_database.web_submit_feedback(:id, 3, 1, 'COMPLAINT'); END;",
       { id }
     )
   }
   async function oracleCount(id) {
     const result = await oracle.execute(
-      "SELECT COUNT(*) CNT FROM smartmove_owner.feedback_records WHERE feedback_id = :id",
+      "SELECT COUNT(*) CNT FROM smartmove_database.feedback_records WHERE feedback_id = :id",
       { id }
     )
     return result.rows[0].CNT

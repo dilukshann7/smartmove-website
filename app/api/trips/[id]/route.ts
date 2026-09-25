@@ -20,7 +20,7 @@ export async function GET(
               TO_CHAR(departure_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' departure_at,
               TO_CHAR(arrival_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' arrival_at,
               fare, vehicle_type, registration_number, seat_count, available_seats
-       FROM smartmove_owner.web_trip_search WHERE trip_id = :id`,
+       FROM smartmove_database.web_trip_search WHERE trip_id = :id`,
       { id }
     )
     const row = details.rows?.[0]
@@ -30,8 +30,8 @@ export async function GET(
         { status: 404 }
       )
     const seats = await connection.execute<{ SEAT_NUMBER: number }>(
-      `SELECT tk.seat_number FROM smartmove_owner.tickets tk
-       JOIN smartmove_owner.bookings b ON b.booking_id = tk.booking_id
+      `SELECT tk.seat_number FROM smartmove_database.tickets tk
+       JOIN smartmove_database.bookings b ON b.booking_id = tk.booking_id
        WHERE b.trip_id = :id
          AND (tk.status = 'ISSUED' OR
               (tk.status = 'RESERVED' AND b.status = 'PENDING'

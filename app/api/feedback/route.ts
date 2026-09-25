@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
       ROUTE_NAME: string
     }>(
       `SELECT f.feedback_id, f.booking_id, f.feedback_type, f.status, r.route_name
-       FROM smartmove_owner.feedback_records f
-       JOIN smartmove_owner.bookings b ON b.booking_id = f.booking_id
-       JOIN smartmove_owner.trips t ON t.trip_id = b.trip_id
-       JOIN smartmove_owner.routes r ON r.route_id = t.route_id
+       FROM smartmove_database.feedback_records f
+       JOIN smartmove_database.bookings b ON b.booking_id = f.booking_id
+       JOIN smartmove_database.trips t ON t.trip_id = b.trip_id
+       JOIN smartmove_database.routes r ON r.route_id = t.route_id
        WHERE b.passenger_id = :passengerId ORDER BY f.feedback_id DESC`,
       { passengerId: passenger.id }
     )
@@ -132,12 +132,12 @@ export async function POST(request: NextRequest) {
       )
     db = await getMongoDb()
     const idResult = await connection.execute<{ FEEDBACK_ID: number }>(
-      `SELECT smartmove_owner.web_feedback_seq.NEXTVAL feedback_id FROM dual`
+      `SELECT smartmove_database.web_feedback_seq.NEXTVAL feedback_id FROM dual`
     )
     const feedbackId = idResult.rows?.[0]?.FEEDBACK_ID
     if (!feedbackId) throw new Error("Feedback sequence returned no ID")
     await connection.execute(
-      `BEGIN smartmove_owner.web_submit_feedback(:id, :bookingId, :passengerId, :feedbackType); END;`,
+      `BEGIN smartmove_database.web_submit_feedback(:id, :bookingId, :passengerId, :feedbackType); END;`,
       {
         id: feedbackId,
         bookingId: Number(bookingId),
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       DRIVER_ID: number
     }>(
       `SELECT t.route_id, t.vehicle_id, t.driver_id
-       FROM smartmove_owner.bookings b JOIN smartmove_owner.trips t ON t.trip_id = b.trip_id
+       FROM smartmove_database.bookings b JOIN smartmove_database.trips t ON t.trip_id = b.trip_id
        WHERE b.booking_id = :bookingId AND b.passenger_id = :passengerId`,
       { bookingId: Number(bookingId), passengerId: passenger.id }
     )

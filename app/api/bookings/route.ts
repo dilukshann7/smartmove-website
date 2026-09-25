@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
               TO_CHAR(t.departure_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' departure_at,
               CASE WHEN b.status = 'PENDING' AND b.booked_at <= SYSDATE - (30 / 1440)
                    THEN 'CANCELLED' ELSE b.status END status,
-              (SELECT COUNT(*) FROM smartmove_owner.tickets tk WHERE tk.booking_id = b.booking_id) seat_count
-       FROM smartmove_owner.bookings b
-       JOIN smartmove_owner.trips t ON t.trip_id = b.trip_id
-       JOIN smartmove_owner.routes r ON r.route_id = t.route_id
+              (SELECT COUNT(*) FROM smartmove_database.tickets tk WHERE tk.booking_id = b.booking_id) seat_count
+       FROM smartmove_database.bookings b
+       JOIN smartmove_database.trips t ON t.trip_id = b.trip_id
+       JOIN smartmove_database.routes r ON r.route_id = t.route_id
        WHERE b.passenger_id = :passengerId
        ORDER BY b.booked_at DESC, b.booking_id DESC`,
       { passengerId: passenger.id }
@@ -102,22 +102,22 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     const nextId = await connection.execute<{ BOOKING_ID: number }>(
-      `SELECT smartmove_owner.web_booking_seq.NEXTVAL booking_id FROM dual`
+      `SELECT smartmove_database.web_booking_seq.NEXTVAL booking_id FROM dual`
     )
     const bookingId = nextId.rows?.[0]?.BOOKING_ID
     if (!bookingId) throw new Error("Booking sequence returned no ID")
     await connection.execute(
-      `BEGIN smartmove_owner.create_booking(:bookingId, :passengerId, :tripId); END;`,
+      `BEGIN smartmove_database.create_booking(:bookingId, :passengerId, :tripId); END;`,
       { bookingId, passengerId: passenger.id, tripId: Number(tripId) }
     )
     for (const seat of seats) {
       const nextTicket = await connection.execute<{ TICKET_ID: number }>(
-        `SELECT smartmove_owner.web_ticket_seq.NEXTVAL ticket_id FROM dual`
+        `SELECT smartmove_database.web_ticket_seq.NEXTVAL ticket_id FROM dual`
       )
       const ticketId = nextTicket.rows?.[0]?.TICKET_ID
       if (!ticketId) throw new Error("Ticket sequence returned no ID")
       await connection.execute(
-        `BEGIN smartmove_owner.reserve_seat(:ticketId, :bookingId, :seatNumber); END;`,
+        `BEGIN smartmove_database.reserve_seat(:ticketId, :bookingId, :seatNumber); END;`,
         { ticketId, bookingId, seatNumber: seat }
       )
     }

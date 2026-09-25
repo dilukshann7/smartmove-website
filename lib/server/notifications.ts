@@ -39,8 +39,8 @@ export async function reconcileNotifications(
     BOOKING_ID: number
     BOOKED_AT: Date
   }>(
-    `SELECT b.booking_id, b.booked_at FROM smartmove_owner.bookings b
-     CROSS JOIN smartmove_owner.web_notification_baseline n
+    `SELECT b.booking_id, b.booked_at FROM smartmove_database.bookings b
+     CROSS JOIN smartmove_database.web_notification_baseline n
      WHERE b.passenger_id = :passengerId AND b.booked_at >= n.started_at`,
     { passengerId }
   )
@@ -50,9 +50,9 @@ export async function reconcileNotifications(
     CHANGED_AT: Date
   }>(
     `SELECT h.booking_id, h.new_status, h.changed_at
-     FROM smartmove_owner.booking_status_history h
-     JOIN smartmove_owner.bookings b ON b.booking_id = h.booking_id
-     CROSS JOIN smartmove_owner.web_notification_baseline n
+     FROM smartmove_database.booking_status_history h
+     JOIN smartmove_database.bookings b ON b.booking_id = h.booking_id
+     CROSS JOIN smartmove_database.web_notification_baseline n
      WHERE b.passenger_id = :passengerId AND h.changed_at >= n.started_at
        AND h.new_status IN ('CONFIRMED', 'CANCELLED')`,
     { passengerId }
@@ -64,10 +64,10 @@ export async function reconcileNotifications(
     REFUNDED_AT: Date
   }>(
     `SELECT r.refund_id, p.booking_id, r.amount, r.refunded_at
-     FROM smartmove_owner.refunds r
-     JOIN smartmove_owner.payments p ON p.payment_id = r.payment_id
-     JOIN smartmove_owner.bookings b ON b.booking_id = p.booking_id
-     CROSS JOIN smartmove_owner.web_notification_baseline n
+     FROM smartmove_database.refunds r
+     JOIN smartmove_database.payments p ON p.payment_id = r.payment_id
+     JOIN smartmove_database.bookings b ON b.booking_id = p.booking_id
+     CROSS JOIN smartmove_database.web_notification_baseline n
      WHERE b.passenger_id = :passengerId AND r.refunded_at >= n.started_at`,
     { passengerId }
   )
@@ -96,8 +96,8 @@ export async function reconcileNotifications(
     FEEDBACK_TYPE: string
     STATUS: string
   }>(
-    `SELECT f.feedback_id, f.feedback_type, f.status FROM smartmove_owner.feedback_records f
-     JOIN smartmove_owner.bookings b ON b.booking_id = f.booking_id
+    `SELECT f.feedback_id, f.feedback_type, f.status FROM smartmove_database.feedback_records f
+     JOIN smartmove_database.bookings b ON b.booking_id = f.booking_id
      WHERE b.passenger_id = :passengerId AND f.feedback_id >= 100000`,
     { passengerId }
   )

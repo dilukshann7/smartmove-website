@@ -4,17 +4,17 @@ Next.js 16, Tailwind and shadcn UI for public trip search and passenger bookings
 
 ## Local Oracle setup
 
-The live `XEPDB1` database on this machine has one-time migrations `../smartmove-database/database/oracle/09_web_integration.sql`, `10_passenger_portal.sql`, and `11_admin_workspace.sql` applied. Migration 11 adds admin sessions, guarded finance and trip-cancellation procedures, and grants for the management routines. The `SMARTMOVE_WEB` user was created separately with a random password. Credentials are in the ignored `.env.local` file:
+The live `XEPDB1` database on this machine has one-time migrations `../smartmove-database/database/oracle/09_web_integration.sql`, `10_passenger_portal.sql`, and `11_admin_workspace.sql` applied. Migration 11 adds admin sessions, guarded finance and trip-cancellation procedures, and grants for the management routines. The `SMARTMOVE_DATABASE_APP` user was created separately with a random password. Credentials are in the ignored `.env.local` file:
 
 ```text
-ORACLE_USER=SMARTMOVE_WEB
+ORACLE_USER=SMARTMOVE_DATABASE_APP
 ORACLE_PASSWORD=<local generated password>
 ORACLE_CONNECT_STRING=localhost:1521/XEPDB1
 MONGODB_URI=mongodb://127.0.0.1:27017
 MONGODB_DB=smartmove
 ```
 
-For another database, create a dedicated `SMARTMOVE_WEB` user with a new password in `XEPDB1`, apply migrations 09, 10, then 11 as SYSDBA after the base SmartMove schema, then set the environment variables. These are one-time scripts; do not rerun them on this database. Oracle and MongoDB services must be running. Never commit `.env.local` or use the example passwords in the coursework scripts.
+For another database, create a dedicated `SMARTMOVE_DATABASE_APP` user with a new password in `XEPDB1`, apply migrations 09, 10, then 11 as SYSDBA after the base SmartMove schema, then set the environment variables. These are one-time scripts; do not rerun them on this database. Oracle and MongoDB services must be running. Never commit `.env.local` or use the example passwords in the coursework scripts.
 
 To create the first real admin locally, run `node scripts/create-admin.mjs` in an interactive terminal with local SQL*Plus OS SYSDBA access. It prompts for an email and a hidden password, stores only a scrypt hash, and leaves the disabled demo admin untouched. Public signup creates passengers only. Admins and passengers use `/login`; successful logins go to `/admin` and `/dashboard` respectively.
 

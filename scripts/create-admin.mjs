@@ -64,8 +64,8 @@ const hash = `scrypt:${salt}:${derived.toString("hex")}`
 const sql = `CONNECT / AS SYSDBA
 ALTER SESSION SET CONTAINER=XEPDB1;
 WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK
-INSERT INTO smartmove_owner.app_users (user_id,email,password_hash,role)
-VALUES (smartmove_owner.web_user_seq.NEXTVAL, '${email}', '${hash}', 'ADMIN');
+INSERT INTO smartmove_database.app_users (user_id,email,password_hash,role)
+VALUES (smartmove_database.web_user_seq.NEXTVAL, '${email}', '${hash}', 'ADMIN');
 COMMIT;
 EXIT
 `

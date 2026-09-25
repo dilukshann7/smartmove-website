@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       USER_ID: number
       PASSWORD_HASH: string
     }>(
-      `SELECT user_id, password_hash FROM smartmove_owner.web_admin_login WHERE email = :email`,
+      `SELECT user_id, password_hash FROM smartmove_database.web_admin_login WHERE email = :email`,
       { email }
     )
     const admin = adminResult.rows?.[0]
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       PASSWORD_HASH: string
     }>(
       `SELECT passenger_id, full_name, password_hash
-       FROM smartmove_owner.web_passenger_login WHERE email = :email`,
+       FROM smartmove_database.web_passenger_login WHERE email = :email`,
       { email }
     )
     const row = result.rows?.[0]

@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
               TO_CHAR(departure_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' departure_at,
               TO_CHAR(arrival_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' arrival_at,
               fare, vehicle_type, registration_number, seat_count, available_seats
-       FROM smartmove_owner.web_trip_search
+       FROM smartmove_database.web_trip_search
        WHERE LOWER(origin) = LOWER(:origin) AND LOWER(destination) = LOWER(:destination)
          AND TRUNC(departure_at) = TO_DATE(:travelDate, 'YYYY-MM-DD')
        ORDER BY departure_at, trip_id`,

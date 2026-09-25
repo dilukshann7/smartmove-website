@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       )
     const result = await context.connection.execute<{ PHONE: string }>(
-      `SELECT phone FROM smartmove_owner.web_passenger_login WHERE passenger_id = :id`,
+      `SELECT phone FROM smartmove_database.web_passenger_login WHERE passenger_id = :id`,
       { id: context.passenger.id }
     )
     return NextResponse.json(
@@ -88,7 +88,7 @@ export async function PATCH(request: NextRequest) {
         { status: 401 }
       )
     await context.connection.execute(
-      `BEGIN smartmove_owner.web_update_profile(:id, :name, :phone); END;`,
+      `BEGIN smartmove_database.web_update_profile(:id, :name, :phone); END;`,
       { id: context.passenger.id, name, phone }
     )
     await context.connection.commit()

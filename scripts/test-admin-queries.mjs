@@ -1,5 +1,5 @@
 // Run with: node --env-file=.env.local scripts/test-admin-queries.mjs
-// Read-only check of the resource and dashboard SQL using SMARTMOVE_WEB grants.
+// Read-only check of the resource and dashboard SQL using SMARTMOVE_DATABASE_APP grants.
 import { readFileSync } from "node:fs"
 import oracledb from "oracledb"
 

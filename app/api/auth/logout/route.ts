@@ -27,12 +27,12 @@ export async function POST(request: NextRequest) {
       connection = await getConnection()
       if (sessionHash)
         await connection.execute(
-          `DELETE FROM smartmove_owner.web_sessions WHERE session_hash = :sessionHash`,
+          `DELETE FROM smartmove_database.web_sessions WHERE session_hash = :sessionHash`,
           { sessionHash }
         )
       if (adminHash)
         await connection.execute(
-          `DELETE FROM smartmove_owner.web_admin_sessions WHERE session_hash = :adminHash`,
+          `DELETE FROM smartmove_database.web_admin_sessions WHERE session_hash = :adminHash`,
           { adminHash }
         )
       await connection.commit()

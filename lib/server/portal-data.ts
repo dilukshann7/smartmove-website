@@ -28,17 +28,17 @@ export async function loadPortalBookings(
             t.status trip_status,
             CASE WHEN b.status = 'PENDING' AND b.booked_at <= SYSDATE - (30 / 1440)
                  THEN 'CANCELLED' ELSE b.status END status,
-            (SELECT COUNT(*) FROM smartmove_owner.tickets tk WHERE tk.booking_id = b.booking_id) seat_count,
-            (SELECT NVL(SUM(tk.fare_amount), 0) FROM smartmove_owner.tickets tk WHERE tk.booking_id = b.booking_id) total_fare,
+            (SELECT COUNT(*) FROM smartmove_database.tickets tk WHERE tk.booking_id = b.booking_id) seat_count,
+            (SELECT NVL(SUM(tk.fare_amount), 0) FROM smartmove_database.tickets tk WHERE tk.booking_id = b.booking_id) total_fare,
             CASE WHEN t.departure_at > SYSDATE AND b.status IN ('PENDING','CONFIRMED')
                        AND (b.status = 'CONFIRMED' OR b.booked_at > SYSDATE - (30 / 1440))
                  THEN 1 ELSE 0 END can_cancel,
             p.amount paid_amount, rf.amount refund_amount
-     FROM smartmove_owner.bookings b
-     JOIN smartmove_owner.trips t ON t.trip_id = b.trip_id
-     JOIN smartmove_owner.routes r ON r.route_id = t.route_id
-     LEFT JOIN smartmove_owner.payments p ON p.booking_id = b.booking_id
-     LEFT JOIN smartmove_owner.refunds rf ON rf.payment_id = p.payment_id
+     FROM smartmove_database.bookings b
+     JOIN smartmove_database.trips t ON t.trip_id = b.trip_id
+     JOIN smartmove_database.routes r ON r.route_id = t.route_id
+     LEFT JOIN smartmove_database.payments p ON p.booking_id = b.booking_id
+     LEFT JOIN smartmove_database.refunds rf ON rf.payment_id = p.payment_id
      WHERE b.passenger_id = :passengerId
      ORDER BY t.departure_at DESC, b.booking_id DESC`,
     { passengerId }
@@ -86,11 +86,11 @@ export async function loadPortalTickets(
             TO_CHAR(t.departure_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' departure_at,
             TO_CHAR(t.arrival_at, 'YYYY-MM-DD"T"HH24:MI:SS') || '+05:30' arrival_at,
             v.vehicle_type, v.registration_number
-     FROM smartmove_owner.tickets tk
-     JOIN smartmove_owner.bookings b ON b.booking_id = tk.booking_id
-     JOIN smartmove_owner.trips t ON t.trip_id = b.trip_id
-     JOIN smartmove_owner.routes r ON r.route_id = t.route_id
-     JOIN smartmove_owner.vehicles v ON v.vehicle_id = t.vehicle_id
+     FROM smartmove_database.tickets tk
+     JOIN smartmove_database.bookings b ON b.booking_id = tk.booking_id
+     JOIN smartmove_database.trips t ON t.trip_id = b.trip_id
+     JOIN smartmove_database.routes r ON r.route_id = t.route_id
+     JOIN smartmove_database.vehicles v ON v.vehicle_id = t.vehicle_id
      WHERE b.passenger_id = :passengerId AND b.status = 'CONFIRMED' AND tk.status = 'ISSUED'
      ORDER BY t.departure_at DESC, tk.seat_number`,
     { passengerId }

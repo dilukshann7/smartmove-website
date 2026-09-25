@@ -32,7 +32,7 @@ function localDate(value: unknown, time = false) {
 }
 async function nextId(connection: Connection, sequence: string) {
   const result = await connection.execute<{ ID: number }>(
-    `SELECT smartmove_owner.${sequence}.NEXTVAL ID FROM dual`
+    `SELECT smartmove_database.${sequence}.NEXTVAL ID FROM dual`
   )
   if (!result.rows?.[0]) throw new Error("Could not assign an ID.")
   return result.rows[0].ID
@@ -51,7 +51,7 @@ export async function mutateAdminResource(
     if (method === "POST") {
       const created = await nextId(connection, "web_route_seq")
       await connection.execute(
-        `BEGIN smartmove_owner.add_route(:id,:name,:origin,:destination,:fare); END;`,
+        `BEGIN smartmove_database.add_route(:id,:name,:origin,:destination,:fare); END;`,
         {
           id: created,
           name,
@@ -64,18 +64,18 @@ export async function mutateAdminResource(
     }
     if (method === "PATCH")
       await connection.execute(
-        `BEGIN smartmove_owner.update_route(:id,:name,:fare); END;`,
+        `BEGIN smartmove_database.update_route(:id,:name,:fare); END;`,
         { id: recordId, name, fare }
       )
     if (method === "DELETE")
       await connection.execute(
-        `BEGIN smartmove_owner.delete_route(:id); END;`,
+        `BEGIN smartmove_database.delete_route(:id); END;`,
         { id: recordId }
       )
   } else if (resource === "vehicles") {
     if (method === "DELETE")
       await connection.execute(
-        `BEGIN smartmove_owner.delete_vehicle(:id); END;`,
+        `BEGIN smartmove_database.delete_vehicle(:id); END;`,
         { id: recordId }
       )
     else {
@@ -85,7 +85,7 @@ export async function mutateAdminResource(
       if (method === "POST") {
         const created = await nextId(connection, "web_vehicle_seq")
         await connection.execute(
-          `BEGIN smartmove_owner.add_vehicle(:id,:registration,:vehicleType,:seats); END;`,
+          `BEGIN smartmove_database.add_vehicle(:id,:registration,:vehicleType,:seats); END;`,
           { id: created, registration, vehicleType, seats }
         )
         return { id: created }
@@ -93,14 +93,14 @@ export async function mutateAdminResource(
       if (form.status !== "ACTIVE" && form.status !== "MAINTENANCE")
         throw new Error("Choose a vehicle status.")
       await connection.execute(
-        `BEGIN smartmove_owner.update_vehicle(:id,:registration,:vehicleType,:seats,:status); END;`,
+        `BEGIN smartmove_database.update_vehicle(:id,:registration,:vehicleType,:seats,:status); END;`,
         { id: recordId, registration, vehicleType, seats, status: form.status }
       )
     }
   } else if (resource === "drivers") {
     if (method === "DELETE")
       await connection.execute(
-        `BEGIN smartmove_owner.delete_driver(:id); END;`,
+        `BEGIN smartmove_database.delete_driver(:id); END;`,
         { id: recordId }
       )
     else {
@@ -110,19 +110,19 @@ export async function mutateAdminResource(
       if (method === "POST") {
         const created = await nextId(connection, "web_driver_seq")
         await connection.execute(
-          `BEGIN smartmove_owner.add_driver(:id,:name,:phone,:licence); END;`,
+          `BEGIN smartmove_database.add_driver(:id,:name,:phone,:licence); END;`,
           { id: created, name, phone, licence }
         )
         return { id: created }
       }
       await connection.execute(
-        `BEGIN smartmove_owner.update_driver(:id,:name,:phone,:licence); END;`,
+        `BEGIN smartmove_database.update_driver(:id,:name,:phone,:licence); END;`,
         { id: recordId, name, phone, licence }
       )
     }
   } else if (resource === "trips") {
     if (method === "DELETE")
-      await connection.execute(`BEGIN smartmove_owner.delete_trip(:id); END;`, {
+      await connection.execute(`BEGIN smartmove_database.delete_trip(:id); END;`, {
         id: recordId,
       })
     else {
@@ -133,7 +133,7 @@ export async function mutateAdminResource(
       if (method === "POST") {
         const created = await nextId(connection, "web_trip_seq")
         await connection.execute(
-          `BEGIN smartmove_owner.schedule_trip(:id,:routeId,:vehicleId,:driverId,
+          `BEGIN smartmove_database.schedule_trip(:id,:routeId,:vehicleId,:driverId,
           TO_DATE(:departureAt,'YYYY-MM-DD"T"HH24:MI'),TO_DATE(:arrivalAt,'YYYY-MM-DD"T"HH24:MI')); END;`,
           {
             id: created,
@@ -147,7 +147,7 @@ export async function mutateAdminResource(
         return { id: created }
       }
       await connection.execute(
-        `BEGIN smartmove_owner.reschedule_trip(:id,:vehicleId,:driverId,
+        `BEGIN smartmove_database.reschedule_trip(:id,:vehicleId,:driverId,
         TO_DATE(:departureAt,'YYYY-MM-DD"T"HH24:MI'),TO_DATE(:arrivalAt,'YYYY-MM-DD"T"HH24:MI')); END;`,
         { id: recordId, vehicleId, driverId, departureAt, arrivalAt }
       )
@@ -155,7 +155,7 @@ export async function mutateAdminResource(
   } else if (resource === "maintenance") {
     if (method === "DELETE")
       await connection.execute(
-        `BEGIN smartmove_owner.delete_maintenance(:id); END;`,
+        `BEGIN smartmove_database.delete_maintenance(:id); END;`,
         { id: recordId }
       )
     else {
@@ -164,7 +164,7 @@ export async function mutateAdminResource(
       if (method === "POST") {
         const created = await nextId(connection, "web_maintenance_seq")
         await connection.execute(
-          `BEGIN smartmove_owner.schedule_maintenance(:id,:vehicleId,:type,TO_DATE(:scheduledDate,'YYYY-MM-DD')); END;`,
+          `BEGIN smartmove_database.schedule_maintenance(:id,:vehicleId,:type,TO_DATE(:scheduledDate,'YYYY-MM-DD')); END;`,
           {
             id: created,
             vehicleId: id(form.vehicleId, "vehicle"),
@@ -175,13 +175,13 @@ export async function mutateAdminResource(
         return { id: created }
       }
       await connection.execute(
-        `BEGIN smartmove_owner.update_maintenance(:id,:type,TO_DATE(:scheduledDate,'YYYY-MM-DD')); END;`,
+        `BEGIN smartmove_database.update_maintenance(:id,:type,TO_DATE(:scheduledDate,'YYYY-MM-DD')); END;`,
         { id: recordId, type, scheduledDate }
       )
     }
   } else if (resource === "passengers" && method === "PATCH") {
     await connection.execute(
-      `BEGIN smartmove_owner.update_passenger(:id,:name,:phone); END;`,
+      `BEGIN smartmove_database.update_passenger(:id,:name,:phone); END;`,
       {
         id: recordId,
         name: string(form.name, "passenger name"),
@@ -204,7 +204,7 @@ export async function runAdminAction(connection: Connection, input: Form) {
     if (!["CASH", "CARD", "BANK_TRANSFER"].includes(String(input.method)))
       throw new Error("Choose a payment method.")
     const result = await connection.execute(
-      `BEGIN smartmove_owner.web_admin_record_payment(:id,:method,:paymentId,:amount); END;`,
+      `BEGIN smartmove_database.web_admin_record_payment(:id,:method,:paymentId,:amount); END;`,
       {
         id: bookingId,
         method: String(input.method),
@@ -216,7 +216,7 @@ export async function runAdminAction(connection: Connection, input: Form) {
   }
   if (action === "cancel_booking") {
     const result = await connection.execute(
-      `BEGIN smartmove_owner.web_admin_cancel_booking(:id,:changed,:refundAmount); END;`,
+      `BEGIN smartmove_database.web_admin_cancel_booking(:id,:changed,:refundAmount); END;`,
       {
         id: bookingId,
         changed: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -227,7 +227,7 @@ export async function runAdminAction(connection: Connection, input: Form) {
   }
   if (action === "record_refund") {
     const result = await connection.execute(
-      `BEGIN smartmove_owner.web_admin_record_refund(:id,:changed,:amount); END;`,
+      `BEGIN smartmove_database.web_admin_record_refund(:id,:changed,:amount); END;`,
       {
         id: bookingId,
         changed: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -238,7 +238,7 @@ export async function runAdminAction(connection: Connection, input: Form) {
   }
   if (action === "cancel_trip") {
     const result = await connection.execute(
-      `BEGIN smartmove_owner.web_admin_cancel_trip(:id,:changed,:refundCount); END;`,
+      `BEGIN smartmove_database.web_admin_cancel_trip(:id,:changed,:refundCount); END;`,
       {
         id: id(input.id, "trip"),
         changed: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -248,7 +248,7 @@ export async function runAdminAction(connection: Connection, input: Form) {
     return result.outBinds
   }
   if (action === "complete_trip") {
-    await connection.execute(`BEGIN smartmove_owner.complete_trip(:id); END;`, {
+    await connection.execute(`BEGIN smartmove_database.complete_trip(:id); END;`, {
       id: id(input.id, "trip"),
     })
     return { completed: true }
@@ -259,7 +259,7 @@ export async function runAdminAction(connection: Connection, input: Form) {
     if (!Number.isFinite(cost) || cost < 0)
       throw new Error("Enter a valid maintenance cost.")
     await connection.execute(
-      `BEGIN smartmove_owner.complete_maintenance(:id,:cost); END;`,
+      `BEGIN smartmove_database.complete_maintenance(:id,:cost); END;`,
       { id: id(input.id, "maintenance"), cost }
     )
     return { completed: true }

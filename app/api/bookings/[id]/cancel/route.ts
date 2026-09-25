@@ -28,7 +28,7 @@ export async function POST(
         { status: 401 }
       )
     const result = await connection.execute(
-      `BEGIN smartmove_owner.web_cancel_booking(:bookingId, :passengerId, :changed, :refundAmount); END;`,
+      `BEGIN smartmove_database.web_cancel_booking(:bookingId, :passengerId, :changed, :refundAmount); END;`,
       {
         bookingId: id,
         passengerId: passenger.id,

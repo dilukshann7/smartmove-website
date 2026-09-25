@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const passwordHash = await hashPassword(password)
     connection = await getConnection()
     const result = await connection.execute(
-      `BEGIN smartmove_owner.web_register_passenger(
+      `BEGIN smartmove_database.web_register_passenger(
         :email, :passwordHash, :fullName, :phone, :userId, :passengerId
        ); END;`,
       {

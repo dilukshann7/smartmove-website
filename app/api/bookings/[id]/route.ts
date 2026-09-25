@@ -44,10 +44,10 @@ export async function GET(
               CASE WHEN t.departure_at > SYSDATE AND b.status IN ('PENDING','CONFIRMED')
                          AND (b.status = 'CONFIRMED' OR b.booked_at > SYSDATE - (30 / 1440))
                    THEN 1 ELSE 0 END can_cancel
-       FROM smartmove_owner.bookings b
-       JOIN smartmove_owner.trips t ON t.trip_id = b.trip_id
-       JOIN smartmove_owner.routes r ON r.route_id = t.route_id
-       JOIN smartmove_owner.vehicles v ON v.vehicle_id = t.vehicle_id
+       FROM smartmove_database.bookings b
+       JOIN smartmove_database.trips t ON t.trip_id = b.trip_id
+       JOIN smartmove_database.routes r ON r.route_id = t.route_id
+       JOIN smartmove_database.vehicles v ON v.vehicle_id = t.vehicle_id
        WHERE b.booking_id = :id AND b.passenger_id = :passengerId`,
       { id, passengerId: passenger.id }
     )
@@ -61,7 +61,7 @@ export async function GET(
       STATUS: string
     }>(
       `SELECT ticket_id, seat_number, fare_amount, status
-       FROM smartmove_owner.tickets WHERE booking_id = :id ORDER BY seat_number`,
+       FROM smartmove_database.tickets WHERE booking_id = :id ORDER BY seat_number`,
       { id }
     )
     const seats = (tickets.rows ?? []).map((seat) => ({
@@ -74,8 +74,8 @@ export async function GET(
       PAID_AMOUNT: number | null; REFUND_AMOUNT: number | null
     }>(
       `SELECT p.amount paid_amount, r.amount refund_amount
-       FROM smartmove_owner.payments p
-       LEFT JOIN smartmove_owner.refunds r ON r.payment_id = p.payment_id
+       FROM smartmove_database.payments p
+       LEFT JOIN smartmove_database.refunds r ON r.payment_id = p.payment_id
        WHERE p.booking_id = :id`,
       { id },
     )

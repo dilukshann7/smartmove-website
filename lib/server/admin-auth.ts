@@ -20,7 +20,7 @@ export async function createAdminSession(
 ) {
   const token = randomBytes(32).toString("base64url")
   await connection.execute(
-    `INSERT INTO smartmove_owner.web_admin_sessions (session_hash, user_id, expires_at)
+    `INSERT INTO smartmove_database.web_admin_sessions (session_hash, user_id, expires_at)
      VALUES (:hash, :userId, SYSTIMESTAMP + INTERVAL '7' DAY)`,
     { hash: hashToken(token), userId }
   )
@@ -48,8 +48,8 @@ export async function getAdminByToken(
   const hash = adminSessionHash(token)
   if (!hash) return null
   const result = await connection.execute<{ USER_ID: number; EMAIL: string }>(
-    `SELECT u.user_id, u.email FROM smartmove_owner.web_admin_sessions s
-     JOIN smartmove_owner.web_admin_login u ON u.user_id = s.user_id
+    `SELECT u.user_id, u.email FROM smartmove_database.web_admin_sessions s
+     JOIN smartmove_database.web_admin_login u ON u.user_id = s.user_id
      WHERE s.session_hash = :hash AND s.expires_at > SYSTIMESTAMP`,
     { hash }
   )

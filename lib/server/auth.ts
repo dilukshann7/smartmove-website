@@ -40,7 +40,7 @@ export async function createSession(
 ) {
   const token = randomBytes(32).toString("base64url")
   await connection.execute(
-    `INSERT INTO smartmove_owner.web_sessions (session_hash, passenger_id, expires_at)
+    `INSERT INTO smartmove_database.web_sessions (session_hash, passenger_id, expires_at)
      VALUES (:sessionHash, :passengerId, SYSTIMESTAMP + INTERVAL '7' DAY)`,
     { sessionHash: tokenHash(token), passengerId }
   )
@@ -85,8 +85,8 @@ export async function getPassenger(
     EMAIL: string
   }>(
     `SELECT u.user_id, u.passenger_id, u.full_name, u.email
-     FROM smartmove_owner.web_sessions s
-     JOIN smartmove_owner.web_passenger_login u ON u.passenger_id = s.passenger_id
+     FROM smartmove_database.web_sessions s
+     JOIN smartmove_database.web_passenger_login u ON u.passenger_id = s.passenger_id
      WHERE s.session_hash = :sessionHash AND s.expires_at > SYSTIMESTAMP`,
     { sessionHash }
   )
