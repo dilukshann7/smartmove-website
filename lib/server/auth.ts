@@ -9,6 +9,7 @@ import {
 import { promisify } from "node:util"
 import type { Connection } from "oracledb"
 import type { NextRequest, NextResponse } from "next/server"
+export { sameOrigin } from "./same-origin"
 
 const scrypt = promisify(scryptCallback)
 const COOKIE = "smartmove_session"
@@ -93,9 +94,4 @@ export async function getPassenger(
   return row
     ? { id: row.PASSENGER_ID, userId: row.USER_ID, name: row.FULL_NAME, email: row.EMAIL }
     : null
-}
-
-export function sameOrigin(request: NextRequest) {
-  const origin = request.headers.get("origin")
-  return !origin || origin === new URL(request.url).origin
 }
