@@ -69,7 +69,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </Link>
           <nav
             aria-label="Main navigation"
-            className="hidden items-center gap-7 md:flex"
+            className="hidden items-center gap-7 xl:flex"
           >
             {links.map((link) => (
               <Link
@@ -81,7 +81,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             {passenger || admin ? (
               <>
                 <span className="max-w-32 truncate text-sm text-[#60718a]">
@@ -107,7 +107,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger
               aria-label="Open navigation"
-              className="grid size-10 place-items-center rounded-full border border-[#e5e9ef] bg-white md:hidden"
+              className="grid size-10 place-items-center rounded-full border border-[#e5e9ef] bg-white xl:hidden"
             >
               <Menu className="size-5" />
             </SheetTrigger>
