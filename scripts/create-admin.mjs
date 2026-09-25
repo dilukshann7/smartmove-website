@@ -17,16 +17,26 @@ if (!process.stdin.isTTY) throw new Error("Run this command in an interactive te
 function hiddenPassword() {
   return new Promise((resolve, reject) => {
     let value = ""
+    let finished = false
     process.stdout.write("New admin password (12+ characters): ")
-    process.stdin.setRawMode(true)
-    process.stdin.resume()
     const finish = (error) => {
+      if (finished) return
+      finished = true
       process.stdin.off("data", onData)
-      process.stdin.setRawMode(false)
+      process.stdin.off("error", onError)
+      let restoreError
+      try {
+        process.stdin.setRawMode(false)
+      } catch (cause) {
+        restoreError = cause
+      }
+      process.stdin.pause()
       process.stdout.write("\n")
       if (error) reject(error)
+      else if (restoreError) reject(restoreError)
       else resolve(value)
     }
+    const onError = (error) => finish(error)
     const onData = (data) => {
       for (const ch of data.toString("utf8")) {
         if (ch === "\r" || ch === "\n") return finish()
@@ -35,7 +45,14 @@ function hiddenPassword() {
         else value += ch
       }
     }
-    process.stdin.on("data", onData)
+    try {
+      process.stdin.setRawMode(true)
+      process.stdin.on("data", onData)
+      process.stdin.once("error", onError)
+      process.stdin.resume()
+    } catch (error) {
+      finish(error)
+    }
   })
 }
 
